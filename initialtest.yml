@@ -5,9 +5,9 @@ jobs:
   job-one:
     runs-on: ubuntu-latest
     steps:
-      - run: "Hello World!"
+      - run: echo "Hello World!"
   
   job-two:
     runs-on: ubuntu-latest
     steps:
-      - run: "See you later, World!"
+      - run: echo "See you later, World!"
