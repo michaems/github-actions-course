@@ -1,0 +1,13 @@
+name: "Michael's workflow"
+on: push
+
+jobs:
+  job-one:
+    runs-on: ubuntu-latest
+    steps:
+      - run: "Hello World!"
+  
+  job-two:
+    runs-on: ubuntu-latest
+    steps:
+      - run: "See you later, World!"
