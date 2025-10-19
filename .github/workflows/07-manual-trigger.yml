@@ -1,0 +1,82 @@
+# Manual Triggers (workflow_dispatch)
+# This workflow demonstrates how to manually trigger workflows with inputs
+
+name: Manual Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+        default: 'development'
+      log-level:
+        description: 'Log level'
+        required: true
+        type: choice
+        options:
+          - debug
+          - info
+          - warning
+          - error
+        default: 'info'
+      run-tests:
+        description: 'Run tests before deployment'
+        required: false
+        type: boolean
+        default: true
+      custom-message:
+        description: 'Custom deployment message'
+        required: false
+        type: string
+        default: 'Manual deployment'
+
+jobs:
+  manual-job:
+    name: Manual Workflow Job
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Display inputs
+      run: |
+        echo "🚀 Deployment Information"
+        echo "========================="
+        echo "Environment: ${{ inputs.environment }}"
+        echo "Log Level: ${{ inputs.log-level }}"
+        echo "Run Tests: ${{ inputs.run-tests }}"
+        echo "Message: ${{ inputs.custom-message }}"
+        echo "Triggered by: ${{ github.actor }}"
+        
+    - name: Setup Node.js
+      if: inputs.run-tests == true
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Run tests
+      if: inputs.run-tests == true
+      run: |
+        npm install
+        npm test
+        echo "✅ Tests passed!"
+        
+    - name: Deploy to ${{ inputs.environment }}
+      run: |
+        echo "Deploying to ${{ inputs.environment }} environment..."
+        echo "Using log level: ${{ inputs.log-level }}"
+        echo "Deployment message: ${{ inputs.custom-message }}"
+        sleep 2
+        echo "✅ Deployment completed successfully!"
+        
+    - name: Send notification
+      run: |
+        echo "📧 Sending notification..."
+        echo "Deployment to ${{ inputs.environment }} completed by ${{ github.actor }}"

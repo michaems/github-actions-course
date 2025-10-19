@@ -1,0 +1,76 @@
+# Caching Dependencies
+# This workflow demonstrates how to cache dependencies to speed up workflow runs
+
+name: Caching
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-with-cache:
+    name: Build with Dependency Caching
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        # Built-in caching for npm
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Run tests
+      run: npm test
+      
+  build-with-custom-cache:
+    name: Build with Custom Cache
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Cache node modules
+      uses: actions/cache@v3
+      id: cache-node-modules
+      with:
+        path: node_modules
+        # Cache key based on package-lock.json hash
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+          
+    - name: Install dependencies
+      if: steps.cache-node-modules.outputs.cache-hit != 'true'
+      run: npm install
+      
+    - name: Cache test results
+      uses: actions/cache@v3
+      with:
+        path: coverage
+        key: ${{ runner.os }}-coverage-${{ github.sha }}
+        
+    - name: Run tests
+      run: npm test
+      
+    - name: Display cache status
+      run: |
+        if [ "${{ steps.cache-node-modules.outputs.cache-hit }}" == "true" ]; then
+          echo "✅ Cache was restored successfully"
+        else
+          echo "❌ Cache was not found, dependencies were installed"
+        fi

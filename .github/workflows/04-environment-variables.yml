@@ -1,0 +1,63 @@
+# Environment Variables and Secrets
+# This workflow demonstrates how to use environment variables and secrets
+
+name: Environment Variables
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+# Workflow-level environment variables
+env:
+  WORKFLOW_VAR: "This is a workflow-level variable"
+  NODE_ENV: "production"
+
+jobs:
+  use-env-vars:
+    name: Using Environment Variables
+    runs-on: ubuntu-latest
+    
+    # Job-level environment variables
+    env:
+      JOB_VAR: "This is a job-level variable"
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Display environment variables
+      env:
+        STEP_VAR: "This is a step-level variable"
+      run: |
+        echo "Workflow variable: $WORKFLOW_VAR"
+        echo "Job variable: $JOB_VAR"
+        echo "Step variable: $STEP_VAR"
+        echo "Node environment: $NODE_ENV"
+        
+    - name: Using GitHub context
+      run: |
+        echo "Repository: ${{ github.repository }}"
+        echo "Branch: ${{ github.ref }}"
+        echo "Commit SHA: ${{ github.sha }}"
+        echo "Actor: ${{ github.actor }}"
+        echo "Workflow: ${{ github.workflow }}"
+        
+    - name: Using secrets (example)
+      run: |
+        echo "Secrets should never be printed!"
+        echo "They are accessed via: \${{ secrets.SECRET_NAME }}"
+        # Never do: echo "${{ secrets.MY_SECRET }}"
+        # Instead, pass them to commands that need them securely
+        
+  environment-specific:
+    name: Environment-Specific Job
+    runs-on: ubuntu-latest
+    environment: production  # Reference to GitHub environment
+    
+    steps:
+    - name: Deploy to environment
+      run: |
+        echo "Deploying to production environment"
+        echo "Environment URL: ${{ github.event.repository.html_url }}"

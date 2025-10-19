@@ -1,0 +1,69 @@
+# Scheduled Workflows (Cron)
+# This workflow demonstrates how to run workflows on a schedule
+
+name: Scheduled Workflow
+
+on:
+  schedule:
+    # Run at 2:00 AM UTC every day
+    - cron: '0 2 * * *'
+    # Run every Monday at 9:00 AM UTC
+    - cron: '0 9 * * 1'
+  # Also allow manual trigger for testing
+  workflow_dispatch:
+
+jobs:
+  scheduled-job:
+    name: Scheduled Maintenance
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Display schedule information
+      run: |
+        echo "🕐 Scheduled Job Execution"
+        echo "=========================="
+        echo "Triggered at: $(date)"
+        echo "Event name: ${{ github.event_name }}"
+        echo "Repository: ${{ github.repository }}"
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Run maintenance tasks
+      run: |
+        echo "Running scheduled maintenance..."
+        npm install
+        npm test
+        echo "✅ Maintenance completed!"
+        
+    - name: Generate report
+      run: |
+        echo "📊 Generating daily report..."
+        echo "Report Date: $(date)" > daily-report.txt
+        echo "Tests Status: Passed" >> daily-report.txt
+        cat daily-report.txt
+        
+    - name: Cleanup old artifacts
+      run: |
+        echo "🧹 Cleaning up old artifacts..."
+        echo "This would typically remove old build artifacts or logs"
+        echo "✅ Cleanup completed!"
+        
+  health-check:
+    name: System Health Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Check system health
+      run: |
+        echo "🏥 System Health Check"
+        echo "====================="
+        echo "CPU: $(nproc) cores"
+        echo "Memory: $(free -h | grep Mem | awk '{print $2}')"
+        echo "Disk: $(df -h / | tail -1 | awk '{print $4}') available"
+        echo "✅ System is healthy!"

@@ -1,0 +1,23 @@
+{
+  "name": "github-actions-course",
+  "version": "1.0.0",
+  "description": "A comprehensive course for mastering GitHub Actions",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint src/",
+    "build": "echo 'Build completed successfully'",
+    "start": "node src/index.js"
+  },
+  "keywords": [
+    "github-actions",
+    "ci-cd",
+    "devops"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "eslint": "^8.0.0"
+  }
+}

@@ -1,0 +1,114 @@
+# Advanced Patterns
+# This workflow demonstrates advanced GitHub Actions patterns
+
+name: Advanced Patterns
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  composite-action-example:
+    name: Using Composite Actions
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup Node.js with cache
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install and test
+      run: |
+        npm install
+        npm test
+        
+  reusable-workflow-caller:
+    name: Calling Reusable Workflow
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Example of reusable workflow pattern
+      run: |
+        echo "In production, this would call a reusable workflow"
+        echo "Example: uses: ./.github/workflows/reusable-workflow.yml"
+        
+  output-example:
+    name: Job Outputs Example
+    runs-on: ubuntu-latest
+    outputs:
+      build-version: ${{ steps.version.outputs.version }}
+      build-time: ${{ steps.time.outputs.time }}
+    
+    steps:
+    - name: Generate version
+      id: version
+      run: echo "version=1.0.${{ github.run_number }}" >> $GITHUB_OUTPUT
+      
+    - name: Generate timestamp
+      id: time
+      run: echo "time=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
+      
+  use-outputs:
+    name: Using Job Outputs
+    runs-on: ubuntu-latest
+    needs: output-example
+    
+    steps:
+    - name: Display outputs from previous job
+      run: |
+        echo "Build Version: ${{ needs.output-example.outputs.build-version }}"
+        echo "Build Time: ${{ needs.output-example.outputs.build-time }}"
+        
+  service-container-example:
+    name: Using Service Containers
+    runs-on: ubuntu-latest
+    
+    services:
+      # Example: Redis service container
+      redis:
+        image: redis
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+    - name: Test Redis connection
+      run: |
+        # Install redis-cli
+        sudo apt-get update
+        sudo apt-get install -y redis-tools
+        
+        # Test connection
+        redis-cli -h localhost ping
+        echo "✅ Redis is running!"
+        
+  concurrency-example:
+    name: Concurrency Control
+    runs-on: ubuntu-latest
+    # Only one workflow run at a time for the same branch
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+    
+    steps:
+    - name: Long running task
+      run: |
+        echo "This job demonstrates concurrency control"
+        echo "If another run starts, this one will be cancelled"
+        sleep 5
+        echo "Task completed!"
