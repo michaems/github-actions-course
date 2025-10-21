@@ -17,6 +17,6 @@ jobs:
           node-version: '20.x'
       - name: Install dependencies and build
         run: npm ci
-        working-directory: ./react-tic-tac-toe
+        working-directory: react-tic-tac-toe
 
       
